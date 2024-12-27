@@ -1,0 +1,111 @@
+*CentOS 부팅 USB 만들기
+
+1. CentOS iso 파일 다운로드
+2. Rufus 다운로드 후 실행
+3. 장치에 usb 선택
+4. 부팅 선택에 다운받은 CentOS iso파일 선택
+5. 시작
+6. iso 이미지 모드로 쓰기(권장)
+7. 데이터가 모두 삭제되어도 되는지 -> 확인
+8. 완료
+
+*부팅 순서 변경
+
+1. 장비 전원키고 부팅
+2. del키 연타해서 바이오스 모드 들어가기
+3. Boot 모드 들어가기
+4. Boot Option #1을 USB Key로 변경
+5. 순서 변경 후 저장
+
+*장비 부팅
+
+1. 부팅
+GRUB loading
+Welcome to GRUB!
+
+error : file '/root/grub/i386-pc/normal.mod' not found
+Entering rescue mode...
+이렇게 뜸 이유는 grub이 훼손 되었을 때 발생한다고 함
+2. ls
+-> (hd0) (hd0,msdos1) (hd1) (hd1,msdos2) (hd1,msdos1)
+3. ls (hd0,msdos1)/
+-> System Volume Information/ [boot]/ .discinfo .treeinfo AppStream/ BaseOS/ boot/ efi/ eula extra_files.json image/ license media.repo autorun.inf autorun.ico (얘는 windows 파티션)
+나머지 다 ls 해봤는데 Systemfile unknown뜸
+4. 그래서 버전을 CentOS Stream 10에서 9로 낮춰서 다시 USB에 저장 (장비에 따라서 맞는 버전이 있음)
+5. 다시 부팅하니 에러없이 실행!
+
+*설치 시작 전 설정 및 실행
+
+1. 한국어 선택 
+2. 설치 대상 지정
+3. 디스크 선택 과정 중 디스크 공간 부족 뜸 -> 모든 파티션 삭제 후 공간 확보
+4. ROOT 암호 설정 후 설치 시작 (암호:3062352)
+5. 설치 완료 후 재시작
+6. 이름, 비밀번호 설정 후 시작
+
+*ip 주소 변경
+
+1. ifconfig로 인터페이스 이름 확인 및 ip주소 확인 (inet 뒤에 주소가 ip주소)
+2. cd /etc/NetworkManager/system-connections 디렉토리로 이동
+3. ls로 파일 이름 확인
+4. sudo vi 로 파일 열기
+5. a키로 수정모드로 들어간 뒤 [ipv4]아래 method=auto를 method=manual로 변경
+6. method=manual아래 address1=ip 주소 추가
+7. esc누른 상태로 :wq로 저장 후 나가기 
+8. systemctl restart NetworkManager로 NetworkManager 서비스 재시작
+
+*ip주소가 127.0.0.1로 나올 때 
+1. nmtui로 들어가서 enp4s0에 있는 127.0.0.1을 삭제하고 ipv4를 자동으로 변경 (이러고 시간이 지나니까 된거같음
+2. 자동으로 받은 ip는 인터넷이 안됨 그래서 장비 ip주소를 자동으로 하지 않고 수동으로 ip주소, gateway주소를 직접 설정
+3. 인터페이스가 꺼져있다면 nmcli con up 인터페이스 이름
+4. 설정 완료 후 systemctl restart NetworkManager 
+ip: 192.168.100.177
+netmask: 255.255.255.0
+gateway: 192.168.100.1
+
+*Xshell에서 SSH 접속하기
+1. sudo vi /etc/ssh/sshd_config파일로 들어가서
+2. PermitRootLogin 주석 풀고 prohibit-password을 yes로 변경
+3. PasswordAuthentication 주석 풀고 yes확인 후 저장
+4. service sshd reload로 ssh서비스 재시작
+5. ssh root@장비ip주소
+6. 비밀번호 치고 확인 
+
+yum 관련
+- 현재 /etc/yum.repos.d/에 있는 centos-addons.repo, centos.repo파일에 metalink가 vault.centos.org로 되어있는데 지금은 운영하지 않음
+- 그래서 metalink를 바꿔주어야 함 
+- CentOS Stream에서는 metalink보다 baseburl이 더 안정적이고 직관적이라고 함
+- 그래서 metalink를 #으로 주석처리 한 후 밑에 baseurl을 추가해줌 
+- baseurl주소는 https://mirror.stream.centos.org/9-stream/...으로 교체해 줌
+- yum update를 하는데 필요한 항목는 BaseOS, AppStream, Extras packages임
+- BaseOS, AppStream은 https://mirror.stream.centos.org/9-stream/에 들어있는데 Extras packages는 들어있지 않음
+- Extras packages는  https://mirror.stream.centos.org/SIGs/9-stream/에 들어있기 때문에 baseurl에 9-stream전에 SIGs를 넣어주어야 함
+- baseos : baseurl=https://mirror.stream.centos.org/$releasever-stream/BaseOS/$basearch/os/
+- AppStream : baseurl=https://mirror.stream.centos.org/9-stream/AppStream/$basearch/os/
+- extras-common : baseurl=https://mirror.stream.centos.org/SIGs/9-stream/extras/$basearch/extras-common/
+
+*apm설치 
+- apache - mysql -php 또는 mysql - apache - php 순서로 설치해야 함 php 설치 시에 apache 및 mysql 관련 설정이 들어가기 때문
+
+*Apache설치
+1. sudo yum update로 등록된 저장소 내 패키지 정보를 최신으로 업데이트
+2. yum info httpd로 설치할 Apache 버전 확인 후 sudo yum install httpd로 Apache 설치
+3. y/n이 나오면 y 계속 누르고 설치 완료
+4. systemctl enable httpd로 재기동시 자동시작 설정
+
+*MySQL설치
+1. sudo yum install mysql mysql-server로 MySQL설치
+2. systemctl enable mysqld로 재기동시 자동시작 설정
+3. mysql_secure_installation로 MySQL 초기설정(root 비밀번호 a3062352)
+4. vi /etc/my.cnf.d/mysql-server.cnf로 시간대역 세팅(필수라고 함 MySQL 5.1 이후 나온 버전부터 시간대역을 지정하지 않으면 Java 등의 프로그램에서 에러가 발생되는 문제가 있음)
+5. [mysqld]아래에 default_time_zone = '+09:00'추가 후 저장
+
+*PHP설치
+1. yum info php로 설치할 php 버전 확인 후 sudo yum install php로 PHP설치
+2. yum info php-*로 설치 가능한 PHP모듈 검색 후, 필요한 모듈 설치 가능
+3. MySQL/MariaDB와 연동하기 위해 sudo yum install php-mysqlnd로 php-mysqlnd모듈 설치
+
+*MySQL 실행 안될때
+- getenforce (현재 SELinux의 상태를 확인)
+- sudo setenforce 0 (SELinux를 Permissive 모드로 전환)
+- 후에 sudo systemctl status mysqld
