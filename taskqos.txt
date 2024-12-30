@@ -7,7 +7,6 @@
 5. 시작
 6. iso 이미지 모드로 쓰기(권장)
 7. 데이터가 모두 삭제되어도 되는지 -> 확인
-8. 완료
 
 *부팅 순서 변경
 
@@ -17,7 +16,7 @@
 4. Boot Option #1을 USB Key로 변경
 5. 순서 변경 후 저장
 
-*장비 부팅
+*부팅 에러
 
 1. 부팅
 GRUB loading
@@ -39,7 +38,7 @@ Entering rescue mode...
 1. 한국어 선택 
 2. 설치 대상 지정
 3. 디스크 선택 과정 중 디스크 공간 부족 뜸 -> 모든 파티션 삭제 후 공간 확보
-4. ROOT 암호 설정 후 설치 시작 (암호:3062352)
+4. ROOT 암호 설정 후 설치 시작 
 5. 설치 완료 후 재시작
 6. 이름, 비밀번호 설정 후 시작
 
@@ -55,6 +54,7 @@ Entering rescue mode...
 8. systemctl restart NetworkManager로 NetworkManager 서비스 재시작
 
 *ip주소가 127.0.0.1로 나올 때 
+
 1. nmtui로 들어가서 enp4s0에 있는 127.0.0.1을 삭제하고 ipv4를 자동으로 변경 (이러고 시간이 지나니까 된거같음
 2. 자동으로 받은 ip는 인터넷이 안됨 그래서 장비 ip주소를 자동으로 하지 않고 수동으로 ip주소, gateway주소를 직접 설정
 3. 인터페이스가 꺼져있다면 nmcli con up 인터페이스 이름
@@ -64,14 +64,16 @@ netmask: 255.255.255.0
 gateway: 192.168.100.1
 
 *Xshell에서 SSH 접속하기
+
 1. sudo vi /etc/ssh/sshd_config파일로 들어가서
 2. PermitRootLogin 주석 풀고 prohibit-password을 yes로 변경
 3. PasswordAuthentication 주석 풀고 yes확인 후 저장
 4. service sshd reload로 ssh서비스 재시작
-5. ssh root@장비ip주소
+5. ssh root@ip주소
 6. 비밀번호 치고 확인 
 
-yum 관련
+*yum 관련
+
 - 현재 /etc/yum.repos.d/에 있는 centos-addons.repo, centos.repo파일에 metalink가 vault.centos.org로 되어있는데 지금은 운영하지 않음
 - 그래서 metalink를 바꿔주어야 함 
 - CentOS Stream에서는 metalink보다 baseburl이 더 안정적이고 직관적이라고 함
@@ -79,33 +81,145 @@ yum 관련
 - baseurl주소는 https://mirror.stream.centos.org/9-stream/...으로 교체해 줌
 - yum update를 하는데 필요한 항목는 BaseOS, AppStream, Extras packages임
 - BaseOS, AppStream은 https://mirror.stream.centos.org/9-stream/에 들어있는데 Extras packages는 들어있지 않음
-- Extras packages는  https://mirror.stream.centos.org/SIGs/9-stream/에 들어있기 때문에 baseurl에 9-stream전에 SIGs를 넣어주어야 함
+- Extras packages는  https://mirror.stream.centos.org/SIGs/9-stream/에 들어있기 때문에 SIGs를 넣어주어야 함
 - baseos : baseurl=https://mirror.stream.centos.org/$releasever-stream/BaseOS/$basearch/os/
 - AppStream : baseurl=https://mirror.stream.centos.org/9-stream/AppStream/$basearch/os/
 - extras-common : baseurl=https://mirror.stream.centos.org/SIGs/9-stream/extras/$basearch/extras-common/
 
-*apm설치 
-- apache - mysql -php 또는 mysql - apache - php 순서로 설치해야 함 php 설치 시에 apache 및 mysql 관련 설정이 들어가기 때문
+*apm 설치 (yum으로 설치)
 
-*Apache설치
+- apache - mysql -php 또는 mysql - apache - php 순서로 설치해야 함 php 설치 시에 apache 및 mysql 관련 설정이 들어가기 때문
+- 삭제는 yum remove 패키지 이름
+
+*Apache 설치
+
 1. sudo yum update로 등록된 저장소 내 패키지 정보를 최신으로 업데이트
 2. yum info httpd로 설치할 Apache 버전 확인 후 sudo yum install httpd로 Apache 설치
 3. y/n이 나오면 y 계속 누르고 설치 완료
 4. systemctl enable httpd로 재기동시 자동시작 설정
 
-*MySQL설치
+*MySQL 설치
+
 1. sudo yum install mysql mysql-server로 MySQL설치
 2. systemctl enable mysqld로 재기동시 자동시작 설정
-3. mysql_secure_installation로 MySQL 초기설정(root 비밀번호 a3062352)
+3. mysql_secure_installation로 MySQL 초기설정
 4. vi /etc/my.cnf.d/mysql-server.cnf로 시간대역 세팅(필수라고 함 MySQL 5.1 이후 나온 버전부터 시간대역을 지정하지 않으면 Java 등의 프로그램에서 에러가 발생되는 문제가 있음)
 5. [mysqld]아래에 default_time_zone = '+09:00'추가 후 저장
 
-*PHP설치
+*PHP 설치
+
 1. yum info php로 설치할 php 버전 확인 후 sudo yum install php로 PHP설치
 2. yum info php-*로 설치 가능한 PHP모듈 검색 후, 필요한 모듈 설치 가능
 3. MySQL/MariaDB와 연동하기 위해 sudo yum install php-mysqlnd로 php-mysqlnd모듈 설치
 
 *MySQL 실행 안될때
+
 - getenforce (현재 SELinux의 상태를 확인)
 - sudo setenforce 0 (SELinux를 Permissive 모드로 전환)
 - 후에 sudo systemctl status mysqld
+
+*apm 설치 (컴파일 설치) 
+
+- 패키지 설치를 하면 간편하게 가능하지만, 불필요한 파일들도 함께 패키지 단위로 설치되기 때문
+- 개인 목적이 아닌 회사에서 업무적인 목적이나 공공이 사용하는 경우에는 패키지 설치를 막을 수 있음
+
+*Apache 설치
+
+1. https://downloads.apache.org/ 에서 최신 버전 확인
+2. wget http://downloads.apache.org/apr/apr-1.7.5.tar.gz 
+, wget http://downloads.apache.prg/apr/apr-util-1.6.3.tar.gz
+, wget https://sourceforge.net/projects/pcre/files/pcre/8.45/pcre-8.45.tar.bz2
+, wget https://dlcdn.apache.org/httpd/httpd-2.4.62.tar.gz 로 최신 버전 파일 다운로드
+3. tar xvfz로 gz 압축 풀기 bz2는 xvf로 풀어야 함
+4. apr 설치
+4-1. cd /usr/local/apr-1.7.5로 경로 설정 후
+4-2. ./configure --prefix=/usr/local/apr 로 환경 설정 및 설치 경로 지정
+4-3. make, make install로 컴파일과 설치 진행
+5. apr-util 설치
+5-1. cd /usr/local/apr-util-1.6.3/로 경로 설정 후
+5-2 ./configure --prefix=/usr/local/apr-util --with-apr=/usr/local/apr 로 환경 설정 및 설치 경로 지정
+5-3 make, make install로 컴파일과 설치 진행
+6. pcre 설치
+6-1. cd /usr/local/pcre-8.45/로 경로 설정 후
+6-2. ./configure --prefix=/usr/local/pcre로 환경 설정 및 설치 경로 지정
+6-3. make, make install로 컴파일과 설치 진행
+7. apache 설치
+7-1. cd /usr/local/httpd-2.4.62/로 경로 설정 후
+7-2. ./configure --prefix=/usr/local/apache2.4 \
+--enable-module=so --enable-rewrite --enable-so \
+--with-apr=/usr/local/apr \
+--with-apr-util=/usr/local/apr-util \
+--with-pcre=/usr/local/pcre \
+--enable-mods-shared=all 로 환경 설정 및 설치 경로 지정
+7-3. make, make install로 컴파일과 설치 진행
+8. vi /usr/local/apache2.4/conf/httpd.conf에서 #ServerName www.example.com:80을 ServerName localhost로 변경 후 저장
+9. sudo /usr/local/apache2.4/bin/httpd -k start로 apache 실행
+
+* MySQL 설치
+1. /usr/local 경로에서 wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.40.tar.gz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
+2. tar xvfz mysql-8.0.40.tar.gz로 압축 해제
+3. cd mysql-8.0.40로 들어가서 mkdir build 디렉토리를 만들어서 들어감
+4. cmake \
+.. \
+-DCMAKE_INSTALL_PREFIX=/usr/local/mysql \
+-DMYSQL_DATADIR=/usr/local/mysql/data \
+-DMYSQL_UNIX_ADDR=/usr/local/mysql/mysql.sock \
+-DMYSQL_TCP_PORT=3306 \
+-DDEFAULT_CHARSET=utf8 \
+-DDEFAULT_COLLATION=utf8_general_ci \
+-DSYSCONFDIR=/etc \
+-DWITH_EXTRA_CHARSETS=all \
+-DWITH_INNOBASE_STORAGE_ENGINE=1 \
+-DWITH_ARCHIVE_STORAGE_ENGINE=1 \
+-DWITH_BLACKHOLE_STORAGE_ENGINE=1 \
+-DDOWNLOAD_BOOST=1 \
+-DWITH_BOOST=/usr/local/mysql/boost 설치코드 입력
+5. make, make test, make install로 설치 완료
+6. /usr/local/mysql-8.0.40/build 경로에서 groupadd mysql, useradd -r -g mysql -s /bin/false mysql로 그룹 및 유저를 생성
+7. /usr/local/mysql 경로에서 mysql-files 디렉토리 생성
+8. chown -R mysql:mysql /usr/local/mysql, chown mysql:mysql mysql-files, chmod 750 mysql-files로 권한을 부여
+9. bin/mysqld --initialize --user=mysql \
+--basedir=/usr/local/mysql \
+--datadir=/usr/local/mysql/data 로 기본 DB생성 (기본 DB 생성을 완료하면 임시 비밀번호가 생성됨 root@localhost: _________)
+10. bin/mysql_safe --user=mysql &로 MySQL서버를 실행 (ps -ef | grep mysqld 명령어로 MySQL이 실행되고 있는지 확인할 수 있음)
+11. bin/mysql -u root -p로 로그인 (처음 DB생성할 때 임시 비밀번호 받은걸로 로그인)
+12. ALTER USER 'root'@'localhost' IDENTIFIED BY '원하는 비밀번호'; 로 비밀번호 변경
+13. bin/mysqladmin -u root -p shutdown후 비밀번호 입력 하면 MySQL 서버 종료
+14. sudo cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysqld로 복사
+15. vi편집기로 mysqld를 열어 basedir과 datadir 뒤에 경로를 추가 후 저장
+basedir=/usr/local/mysql
+datadir=/usr/local/mysql/data
+16. update-rc.d mysqld defaults로 mysqld 서비스를 등록
+
+* PHP 설치
+
+1. wget https://www.php.net/distributions/php-8.4.2.tar.gz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
+2. tar xvfz php-8.4.2.tar.gz로 압축 해제
+3. cd php-8.4.2로 이동
+4. ./configure \
+--with-apxs2=/usr/local/apache2.4/bin/apxs \
+--enable-mysqlnd \
+--with-mysql-sock=mysqlnd \
+--with-mysqli=mysqlnd \
+--with-pdo-mysql=mysqlnd \
+--with-imap-ssl \
+--with-iconv \
+--enable-gd \
+--with-jpeg \
+--with-libxml \
+--with-openssl 설치코드 입력
+5. make, make test, make install (test는 말 그대로 그냥 테스트)로 설치
+6. Apache와 연동하기 위해 /usr/local/apache2.4/conf 경로에서 httpd.conf열기
+7. 165 line 근처에서 php설치 확인이 가능 (LoadModule php_module	      modules/libphp.so 있는지 확인)
+8. 400 line 근처에 AddType추가 (AddType application/x-httpd-php .php .html)
+9. production 시스템용 설정 파일인 php.ini-production 파일을 /usr/local/lib/php.ini에 복사
+10. vi로 phpinfo.php 파일 생성 후
+<?php
+phpinfo();
+?> 입력
+11. sudo /usr/local/apache2.4/bin/httpd -k start로 Apache 실행
+12. sudo curl http://127.0.0.1로 실행 확인 (<html><body><h1>It works!</h1></body></html>)
+
+* PHP 설치코드 입력 후 에러 떴을 때
+1. 패키지가 설치되지 않아서 생기는 에러임
+2. sudo dnf install 패키지명-devel로 설치 후 다시 실행하면 해결
