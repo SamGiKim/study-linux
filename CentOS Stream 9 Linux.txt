@@ -48,16 +48,15 @@ Entering rescue mode...
 2. cd /etc/NetworkManager/system-connections 디렉토리로 이동
 3. ls로 파일 이름 확인
 4. sudo vi 로 파일 열기
-5. a키로 수정모드로 들어간 뒤 [ipv4]아래 method=auto를 method=manual로 변경
-6. method=manual아래 address1=ip 주소 추가
-7. esc누른 상태로 :wq로 저장 후 나가기 
-8. systemctl restart NetworkManager로 NetworkManager 서비스 재시작
+5. [ipv4]아래 method=auto를 method=manual로 변경
+6. method=manual아래 address1=ip 주소 추가후 저장
+7. systemctl restart NetworkManager로 NetworkManager 서비스 재시작
 
 *ip주소가 127.0.0.1로 나올 때 
 
-1. nmtui로 들어가서 enp4s0에 있는 127.0.0.1을 삭제하고 ipv4를 자동으로 변경 (이러고 시간이 지나니까 된거같음
+1. nmtui로 들어가서 enp4s0에 있는 127.0.0.1을 삭제하고 ipv4를 자동으로 변경 (이러고 시간이 지나니까 된거같음)
 2. 자동으로 받은 ip는 인터넷이 안됨 그래서 장비 ip주소를 자동으로 하지 않고 수동으로 ip주소, gateway주소를 직접 설정
-3. 인터페이스가 꺼져있다면 nmcli con up 인터페이스 이름
+3. 인터페이스가 꺼져있다면 nmcli con up 인터페이스 이름 (인터페이스를 끄려면 nmcli con down 인터페이스 이름)
 4. 설정 완료 후 systemctl restart NetworkManager 
 ip: 192.168.100.177
 netmask: 255.255.255.0
@@ -126,10 +125,10 @@ gateway: 192.168.100.1
 *Apache 설치
 
 1. https://downloads.apache.org/ 에서 최신 버전 확인
-2. wget http://downloads.apache.org/apr/apr-1.7.5.tar.gz 
+2. wget http://downloads.apache.org/apr/apr-1.7.5.tar.gz
 , wget http://downloads.apache.prg/apr/apr-util-1.6.3.tar.gz
 , wget https://sourceforge.net/projects/pcre/files/pcre/8.45/pcre-8.45.tar.bz2
-, wget https://dlcdn.apache.org/httpd/httpd-2.4.62.tar.gz 로 최신 버전 파일 다운로드
+, wget https://dlcdn.apache.org/httpd/httpd-2.4.62.tar.gz 로 최신 버전 파일 다운로드 (홈페이지에서 최신 버전 확인)
 3. tar xvfz로 gz 압축 풀기 bz2는 xvf로 풀어야 함
 4. apr 설치
 4-1. cd /usr/local/apr-1.7.5로 경로 설정 후
@@ -221,5 +220,11 @@ phpinfo();
 12. sudo curl http://127.0.0.1로 실행 확인 (<html><body><h1>It works!</h1></body></html>)
 
 * PHP 설치코드 입력 후 에러 떴을 때
+
 1. 패키지가 설치되지 않아서 생기는 에러임
 2. sudo dnf install 패키지명-devel로 설치 후 다시 실행하면 해결
+
+*DPDK 설치
+1. wget https://fast.dpdk.org/rel/dpdk-24.11.tar.xz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
+2. tar xvf dpdk-24.24.11.tar.xz로 압축 해제
+3. 
