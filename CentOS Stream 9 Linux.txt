@@ -34,30 +34,28 @@ Entering rescue mode...
 5. 다시 부팅하니 에러없이 실행!
 
 *설치 시작 전 설정 및 실행
+ 
+1. 설치 대상 지정
+2. 디스크 선택 과정 중 디스크 공간 부족 뜸 -> 모든 파티션 삭제 후 공간 확보
+3. ROOT 암호 설정 후 설치 시작
+4. 설치 완료 후 재시작
+5. 이름, 비밀번호 설정 후 시작
 
-1. 한국어 선택 
-2. 설치 대상 지정
-3. 디스크 선택 과정 중 디스크 공간 부족 뜸 -> 모든 파티션 삭제 후 공간 확보
-4. ROOT 암호 설정 후 설치 시작 
-5. 설치 완료 후 재시작
-6. 이름, 비밀번호 설정 후 시작
-
-*ip 주소 변경
+*네트워크 설정
 
 1. ifconfig로 인터페이스 이름 확인 및 ip주소 확인 (inet 뒤에 주소가 ip주소)
 2. cd /etc/NetworkManager/system-connections 디렉토리로 이동
-3. ls로 파일 이름 확인
-4. sudo vi 로 파일 열기
-5. [ipv4]아래 method=auto를 method=manual로 변경
-6. method=manual아래 address1=ip 주소 추가후 저장
-7. systemctl restart NetworkManager로 NetworkManager 서비스 재시작
+3. ls로 파일 이름 확인 후 열기
+4. [ipv4]아래 method=auto를 method=manual로 변경
+5. method=manual아래 address1=ip 주소 추가후 저장
+6. systemctl restart NetworkManager로 NetworkManager 서비스 재시작
 
-*ip주소가 127.0.0.1로 나올 때 
+*ip주소가 127.0.0.1로 나올 때
 
 1. nmtui로 들어가서 enp4s0에 있는 127.0.0.1을 삭제하고 ipv4를 자동으로 변경 (이러고 시간이 지나니까 된거같음)
 2. 자동으로 받은 ip는 인터넷이 안됨 그래서 장비 ip주소를 자동으로 하지 않고 수동으로 ip주소, gateway주소를 직접 설정
 3. 인터페이스가 꺼져있다면 nmcli con up 인터페이스 이름 (인터페이스를 끄려면 nmcli con down 인터페이스 이름)
-4. 설정 완료 후 systemctl restart NetworkManager 
+4. 설정 완료 후 systemctl restart NetworkManager
 ip: 192.168.100.177
 netmask: 255.255.255.0
 gateway: 192.168.100.1
@@ -69,12 +67,12 @@ gateway: 192.168.100.1
 3. PasswordAuthentication 주석 풀고 yes확인 후 저장
 4. service sshd reload로 ssh서비스 재시작
 5. ssh root@ip주소
-6. 비밀번호 치고 확인 
+6. 비밀번호 치고 확인
 
 *yum 관련
 
 - 현재 /etc/yum.repos.d/에 있는 centos-addons.repo, centos.repo파일에 metalink가 vault.centos.org로 되어있는데 지금은 운영하지 않음
-- 그래서 metalink를 바꿔주어야 함 
+- 그래서 metalink를 바꿔주어야 함
 - CentOS Stream에서는 metalink보다 baseburl이 더 안정적이고 직관적이라고 함
 - 그래서 metalink를 #으로 주석처리 한 후 밑에 baseurl을 추가해줌 
 - baseurl주소는 https://mirror.stream.centos.org/9-stream/...으로 교체해 줌
@@ -94,8 +92,7 @@ gateway: 192.168.100.1
 
 1. sudo yum update로 등록된 저장소 내 패키지 정보를 최신으로 업데이트
 2. yum info httpd로 설치할 Apache 버전 확인 후 sudo yum install httpd로 Apache 설치
-3. y/n이 나오면 y 계속 누르고 설치 완료
-4. systemctl enable httpd로 재기동시 자동시작 설정
+3. systemctl enable httpd로 재기동시 자동시작 설정
 
 *MySQL 설치
 
@@ -117,7 +114,7 @@ gateway: 192.168.100.1
 - sudo setenforce 0 (SELinux를 Permissive 모드로 전환)
 - 후에 sudo systemctl status mysqld
 
-*apm 설치 (컴파일 설치) 
+*apm 설치 (컴파일 설치)
 
 - 패키지 설치를 하면 간편하게 가능하지만, 불필요한 파일들도 함께 패키지 단위로 설치되기 때문
 - 개인 목적이 아닌 회사에서 업무적인 목적이나 공공이 사용하는 경우에는 패키지 설치를 막을 수 있음
@@ -154,7 +151,7 @@ gateway: 192.168.100.1
 8. vi /usr/local/apache2.4/conf/httpd.conf에서 #ServerName www.example.com:80을 ServerName localhost로 변경 후 저장
 9. sudo /usr/local/apache2.4/bin/httpd -k start로 apache 실행
 
-* MySQL 설치
+*MySQL 설치
 1. /usr/local 경로에서 wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.40.tar.gz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
 2. tar xvfz mysql-8.0.40.tar.gz로 압축 해제
 3. cd mysql-8.0.40로 들어가서 mkdir build 디렉토리를 만들어서 들어감
@@ -190,7 +187,7 @@ basedir=/usr/local/mysql
 datadir=/usr/local/mysql/data
 16. update-rc.d mysqld defaults로 mysqld 서비스를 등록
 
-* PHP 설치
+*PHP 설치
 
 1. wget https://www.php.net/distributions/php-8.4.2.tar.gz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
 2. tar xvfz php-8.4.2.tar.gz로 압축 해제
@@ -219,7 +216,7 @@ phpinfo();
 11. sudo /usr/local/apache2.4/bin/httpd -k start로 Apache 실행
 12. sudo curl http://127.0.0.1로 실행 확인 (<html><body><h1>It works!</h1></body></html>)
 
-* PHP 설치코드 입력 후 에러 떴을 때
+*PHP 설치코드 입력 후 에러 떴을 때
 
 1. 패키지가 설치되지 않아서 생기는 에러임
 2. sudo dnf install 패키지명-devel로 설치 후 다시 실행하면 해결
@@ -227,4 +224,3 @@ phpinfo();
 *DPDK 설치
 1. wget https://fast.dpdk.org/rel/dpdk-24.11.tar.xz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
 2. tar xvf dpdk-24.24.11.tar.xz로 압축 해제
-3. 
