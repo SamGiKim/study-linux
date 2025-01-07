@@ -221,6 +221,13 @@ phpinfo();
 1. 패키지가 설치되지 않아서 생기는 에러임
 2. sudo dnf install 패키지명-devel로 설치 후 다시 실행하면 해결
 
+*DPDK
+- Intel에서 개발한 고성능 패킷 처리 소프트웨어로 고속 패킷 처리를 위한 라이브러리와 드라이버를 제공하고 NFV의 네트워크 성능을 높이기 위한 핵심 기술
+- 운영체제의 도움을 받지 않고 오버헤드 없이 사용자 어플리케이션이 직접 하드웨어를 독점 제어할 수 있는 자체 인터페이스를 제공
+- 한 마디로 커널을 우회하는 것
+
 *DPDK 설치
 1. wget https://fast.dpdk.org/rel/dpdk-24.11.tar.xz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
 2. tar xvf dpdk-24.24.11.tar.xz로 압축 해제
+3. meson setup -Dexamples=all build, sudo ninja -C build install로 DPDK를 빌드하기 위해 meson과 ninja를 다운
+4. 
