@@ -6,7 +6,7 @@
 4. 부팅 선택에 다운받은 CentOS iso파일 선택
 5. 시작
 6. iso 이미지 모드로 쓰기(권장)
-7. 데이터가 모두 삭제되어도 되는지 -> 확인
+7. 데이터가 모두 삭제되어도 되는지 -> 확인 (좀 오래걸림)
 
 *부팅 순서 변경
 
@@ -35,7 +35,7 @@ Entering rescue mode...
 
 *설치 시작 전 설정 및 실행
  
-1. 설치 대상 지정
+1. 설치 대상 지정(USB 하면 안됨 하드디스크로)
 2. 디스크 선택 과정 중 디스크 공간 부족 뜸 -> 모든 파티션 삭제 후 공간 확보
 3. ROOT 암호 설정 후 설치 시작
 4. 설치 완료 후 재시작
@@ -83,6 +83,10 @@ gateway: 192.168.100.1
 - AppStream : baseurl=https://mirror.stream.centos.org/9-stream/AppStream/$basearch/os/
 - extras-common : baseurl=https://mirror.stream.centos.org/SIGs/9-stream/extras/$basearch/extras-common/
 
+*일단 이거부터
+- sudo yum install gcc gcc-c++ -y
+
+
 *apm 설치 (yum으로 설치)
 
 - apache - mysql -php 또는 mysql - apache - php 순서로 설치해야 함 php 설치 시에 apache 및 mysql 관련 설정이 들어가기 때문
@@ -96,11 +100,12 @@ gateway: 192.168.100.1
 
 *MySQL 설치
 
-1. sudo yum install mysql mysql-server로 MySQL설치
+1. dnf install mysql mysql-server로 MySQL설치
 2. systemctl enable mysqld로 재기동시 자동시작 설정
-3. mysql_secure_installation로 MySQL 초기설정
-4. vi /etc/my.cnf.d/mysql-server.cnf로 시간대역 세팅(필수라고 함 MySQL 5.1 이후 나온 버전부터 시간대역을 지정하지 않으면 Java 등의 프로그램에서 에러가 발생되는 문제가 있음)
-5. [mysqld]아래에 default_time_zone = '+09:00'추가 후 저장
+3. sudo grep 'temporary password' /var/log/mysql/mysqld.log로 암호 확인 후 로그인
+4. mysql_secure_installation로 MySQL 초기설정
+5. vi /etc/my.cnf.d/mysql-server.cnf로 시간대역 세팅(필수라고 함 MySQL 5.1 이후 나온 버전부터 시간대역을 지정하지 않으면 Java 등의 프로그램에서 에러가 발생되는 문제가 있음)
+6. [mysqld]아래에 default_time_zone = '+09:00'추가 후 저장
 
 *PHP 설치
 
@@ -108,8 +113,18 @@ gateway: 192.168.100.1
 2. yum info php-*로 설치 가능한 PHP모듈 검색 후, 필요한 모듈 설치 가능
 3. MySQL/MariaDB와 연동하기 위해 sudo yum install php-mysqlnd로 php-mysqlnd모듈 설치
 
-*MySQL 실행 안될때
+*MySQL 실행 안 될때
 
+- MySQL 데이터 디렉토리(/var/lib/mysql/)에 기존 파일이 있는지 확인
+- sudo cp -r /var/lib/mysql /var/lib/mysql_backup로 중요 데이터 백업
+- sudo systemctl stop mysqld
+sudo rm -rf /var/lib/mysql/*
+sudo mysqld --initialize --user=mysql로 기존 데이터 디렉토리를 제거한 후 MySQL을 초기화
+- sudo chown -R mysql:mysql /var/lib/mysql
+sudo chmod -R 750 /var/lib/mysql로 데이터 디렉토리에 올바른 권한이 설정되어 있는지 확인하고 설정 (이게 핵심인듯?)
+- MySQL 서비스를 다시 시작하고 상태를 확인
+
+*위에 방법 하고도 안 될때는
 - getenforce (현재 SELinux의 상태를 확인)
 - sudo setenforce 0 (SELinux를 Permissive 모드로 전환)
 - 후에 sudo systemctl status mysqld
@@ -152,6 +167,7 @@ gateway: 192.168.100.1
 9. sudo /usr/local/apache2.4/bin/httpd -k start로 apache 실행
 
 *MySQL 설치
+
 1. /usr/local 경로에서 wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.40.tar.gz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
 2. tar xvfz mysql-8.0.40.tar.gz로 압축 해제
 3. cd mysql-8.0.40로 들어가서 mkdir build 디렉토리를 만들어서 들어감
@@ -222,12 +238,17 @@ phpinfo();
 2. sudo dnf install 패키지명-devel로 설치 후 다시 실행하면 해결
 
 *DPDK
+
 - Intel에서 개발한 고성능 패킷 처리 소프트웨어로 고속 패킷 처리를 위한 라이브러리와 드라이버를 제공하고 NFV의 네트워크 성능을 높이기 위한 핵심 기술
 - 운영체제의 도움을 받지 않고 오버헤드 없이 사용자 어플리케이션이 직접 하드웨어를 독점 제어할 수 있는 자체 인터페이스를 제공
 - 한 마디로 커널을 우회하는 것
 
 *DPDK 설치
+
 1. wget https://fast.dpdk.org/rel/dpdk-24.11.tar.xz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
-2. tar xvf dpdk-24.24.11.tar.xz로 압축 해제
-3. meson setup -Dexamples=all build, sudo ninja -C build install로 DPDK를 빌드하기 위해 meson과 ninja를 다운
-4. 
+2. tar xvf dpdk-24.11.tar.xz로 압축 해제
+3. meson setup -Dexamples=all build, sudo ninja -C build install로 DPDK를 빌드하기 위해 meson과 ninja를 다운 (meson은 meson.build가 있는 파일로 가서 실행해야 함 dpdk-24.11에 있었음)
+
+*ninja 명령어 없다고 뜰 때
+
+*DPDK 예제
