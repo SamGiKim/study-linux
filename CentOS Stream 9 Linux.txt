@@ -247,8 +247,19 @@ phpinfo();
 
 1. wget https://fast.dpdk.org/rel/dpdk-24.11.tar.xz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
 2. tar xvf dpdk-24.11.tar.xz로 압축 해제
-3. meson setup -Dexamples=all build, sudo ninja -C build install로 DPDK를 빌드하기 위해 meson과 ninja를 다운 (meson은 meson.build가 있는 파일로 가서 실행해야 함 dpdk-24.11에 있었음)
+3. meson setup -Dexamples=all로 build 디렉토리를 생성하고 Meson 빌드 환경을 초기화
 
-*ninja 명령어 없다고 뜰 때
+*DPDK 바인딩
+1. cd dpdk-24.11/usertools경로로 이동해서  sudo ./dpdk-devbind.py --status로 현재 인터페이스가 어디에 연결되어 있는지 확인(처음에는 kernel에 연결되어 있음)
+2. 인터페이스 앞에 있는 숫자(ex - 0000:05:00.0)를 기억
+3. 현재 사용하고있는 인터페이스를 제외하고 다른 인터페이스에 Active가 표시 된다면 sudo ip link set 인터페이스이름 down으로 비활성화
+4. sudo ./dpdk-devbind.py --bind=uio_pci_generic 0000:05:00.0로 바인딩 (2개 해줘야 함)
+5. sudo ./dpdk-devbind.py --status로 dpdk에 바인딩이 되었는지 확인
 
-*DPDK 예제
+*DPDK 예제(L2 Forwarding Sample Application)
+1. dpdk-24.11경로에서 ./build/examples/dpdk-l2fwd [EAL options] -- -p PORTMASK
+                               [-P]
+                               [-q NQ]
+                               --[no-]mac-updating
+                               [--portmap="(port, port)[,(port, port)]"] 로 실행
+ex - ./build/examples/dpdk-l2fwd -c 0x3 -n 1 --vdev 'net_enetfec' -- -p 0x1
