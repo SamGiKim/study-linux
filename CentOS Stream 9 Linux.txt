@@ -168,6 +168,7 @@ sudo chmod -R 750 /var/lib/mysql로 데이터 디렉토리에 올바른 권한�
 
 *MySQL 설치
 
+- cmake를 통해 설치하기 때문에 가장 먼저 cmake를 다운
 1. /usr/local 경로에서 wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.40.tar.gz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
 2. tar xvfz mysql-8.0.40.tar.gz로 압축 해제
 3. cd mysql-8.0.40로 들어가서 mkdir build 디렉토리를 만들어서 들어감
