@@ -75,10 +75,10 @@ gateway: 192.168.100.1
 - 그래서 metalink를 바꿔주어야 함
 - CentOS Stream에서는 metalink보다 baseburl이 더 안정적이고 직관적이라고 함
 - 그래서 metalink를 #으로 주석처리 한 후 밑에 baseurl을 추가해줌 
-- baseurl주소는 https://mirror.stream.centos.org/9-stream/...으로 교체해 줌
+- baseurl주소는 https://mirror.stream.centos.org/9-stream/... 으로 교체해 줌
 - yum update를 하는데 필요한 항목는 BaseOS, AppStream, Extras packages임
-- BaseOS, AppStream은 https://mirror.stream.centos.org/9-stream/에 들어있는데 Extras packages는 들어있지 않음
-- Extras packages는  https://mirror.stream.centos.org/SIGs/9-stream/에 들어있기 때문에 SIGs를 넣어주어야 함
+- BaseOS, AppStream은 https://mirror.stream.centos.org/9-stream/ 에 들어있는데 Extras packages는 들어있지 않음
+- Extras packages는  https://mirror.stream.centos.org/SIGs/9-stream/ 에 들어있기 때문에 SIGs를 넣어주어야 함
 - baseos : baseurl=https://mirror.stream.centos.org/$releasever-stream/BaseOS/$basearch/os/
 - AppStream : baseurl=https://mirror.stream.centos.org/9-stream/AppStream/$basearch/os/
 - extras-common : baseurl=https://mirror.stream.centos.org/SIGs/9-stream/extras/$basearch/extras-common/
@@ -94,34 +94,34 @@ gateway: 192.168.100.1
 
 *Apache 설치
 
-1. sudo yum update로 등록된 저장소 내 패키지 정보를 최신으로 업데이트
-2. yum info httpd로 설치할 Apache 버전 확인 후 sudo yum install httpd로 Apache 설치
-3. systemctl enable httpd로 재기동시 자동시작 설정
+1. sudo yum update 로 등록된 저장소 내 패키지 정보를 최신으로 업데이트
+2. yum info httpd 로 설치할 Apache 버전 확인 후 sudo yum install httpd 로 Apache 설치
+3. systemctl enable httpd 로 재기동시 자동시작 설정
 
 *MySQL 설치
 
-1. dnf install mysql mysql-server로 MySQL설치
-2. systemctl enable mysqld로 재기동시 자동시작 설정
-3. sudo grep 'temporary password' /var/log/mysql/mysqld.log로 암호 확인 후 로그인
-4. mysql_secure_installation로 MySQL 초기설정
-5. vi /etc/my.cnf.d/mysql-server.cnf로 시간대역 세팅(필수라고 함 MySQL 5.1 이후 나온 버전부터 시간대역을 지정하지 않으면 Java 등의 프로그램에서 에러가 발생되는 문제가 있음)
-6. [mysqld]아래에 default_time_zone = '+09:00'추가 후 저장
+1. dnf install mysql mysql-server 로 MySQL설치
+2. systemctl enable mysqld 로 재기동시 자동시작 설정
+3. sudo grep 'temporary password' /var/log/mysql/mysqld.log 로 암호 확인 후 로그인
+4. mysql_secure_installation 로 MySQL 초기설정
+5. vi /etc/my.cnf.d/mysql-server.cnf 로 시간대역 세팅(필수라고 함 MySQL 5.1 이후 나온 버전부터 시간대역을 지정하지 않으면 Java 등의 프로그램에서 에러가 발생되는 문제가 있음)
+6. [mysqld]아래에 default_time_zone = '+09:00' 추가 후 저장
 
 *PHP 설치
 
-1. yum info php로 설치할 php 버전 확인 후 sudo yum install php로 PHP설치
-2. yum info php-*로 설치 가능한 PHP모듈 검색 후, 필요한 모듈 설치 가능
-3. MySQL/MariaDB와 연동하기 위해 sudo yum install php-mysqlnd로 php-mysqlnd모듈 설치
+1. yum info php 로 설치할 php 버전 확인 후 sudo yum install php 로 PHP설치
+2. yum info php-* 로 설치 가능한 PHP모듈 검색 후, 필요한 모듈 설치 가능
+3. MySQL/MariaDB와 연동하기 위해 sudo yum install php-mysqlnd 로 php-mysqlnd모듈 설치
 
 *MySQL 실행 안 될때
 
 - MySQL 데이터 디렉토리(/var/lib/mysql/)에 기존 파일이 있는지 확인
-- sudo cp -r /var/lib/mysql /var/lib/mysql_backup로 중요 데이터 백업
+- sudo cp -r /var/lib/mysql /var/lib/mysql_backup 로 중요 데이터 백업
 - sudo systemctl stop mysqld
 sudo rm -rf /var/lib/mysql/*
-sudo mysqld --initialize --user=mysql로 기존 데이터 디렉토리를 제거한 후 MySQL을 초기화
+sudo mysqld --initialize --user=mysql 로 기존 데이터 디렉토리를 제거한 후 MySQL을 초기화
 - sudo chown -R mysql:mysql /var/lib/mysql
-sudo chmod -R 750 /var/lib/mysql로 데이터 디렉토리에 올바른 권한이 설정되어 있는지 확인하고 설정 (이게 핵심인듯?)
+sudo chmod -R 750 /var/lib/mysql 로 데이터 디렉토리에 올바른 권한이 설정되어 있는지 확인하고 설정 (이게 핵심인듯?)
 - MySQL 서비스를 다시 시작하고 상태를 확인
 
 *위에 방법 하고도 안 될때는
@@ -143,35 +143,35 @@ sudo chmod -R 750 /var/lib/mysql로 데이터 디렉토리에 올바른 권한�
 , wget https://dlcdn.apache.org/httpd/httpd-2.4.62.tar.gz 로 최신 버전 파일 다운로드 (홈페이지에서 최신 버전 확인)
 3. tar xvfz로 gz 압축 풀기 bz2는 xvf로 풀어야 함
 4. apr 설치
-4-1. /usr/local/apache/apr-1.7.5로 경로에서
+4-1. /usr/local/apache/apr-1.7.5 경로에서
 4-2. ./configure --prefix=/usr/local/apr 로 환경 설정 및 설치 경로 지정
-4-3. make, make install로 컴파일과 설치 진행
+4-3. make, make install 로 컴파일과 설치 진행
 5. apr-util 설치
-5-1. cd /usr/local/apache/apr-util-1.6.3/로 경로 설정 후
+5-1. cd /usr/local/apache/apr-util-1.6.3/ 로 경로 설정 후
 5-2 ./configure --prefix=/usr/local/apr-util --with-apr=/usr/local/apr 로 환경 설정 및 설치 경로 지정
-5-3 make, make install로 컴파일과 설치 진행
+5-3 make, make install 로 컴파일과 설치 진행
 6. pcre 설치
-6-1. cd /usr/local/apache/pcre-8.45/로 경로 설정 후
-6-2. ./configure --prefix=/usr/local/pcre로 환경 설정 및 설치 경로 지정
-6-3. make, make install로 컴파일과 설치 진행
+6-1. cd /usr/local/apache/pcre-8.45 /로 경로 설정 후
+6-2. ./configure --prefix=/usr/local/pcre 로 환경 설정 및 설치 경로 지정
+6-3. make, make install 로 컴파일과 설치 진행
 7. apache 설치
-7-1. cd /usr/local/apache/httpd-2.4.62/로 경로 설정 후
+7-1. cd /usr/local/apache/httpd-2.4.62/ 로 경로 설정 후
 7-2. ./configure --prefix=/usr/local/apache2.4 \
 --enable-module=so --enable-rewrite --enable-so \
 --with-apr=/usr/local/apr \
 --with-apr-util=/usr/local/apr-util \
 --with-pcre=/usr/local/pcre \
 --enable-mods-shared=all 로 환경 설정 및 설치 경로 지정
-7-3. make, make install로 컴파일과 설치 진행
-8. vi /usr/local/apache2.4/conf/httpd.conf에서 #ServerName www.example.com:80을 ServerName localhost로 변경 후 저장
-9. sudo /usr/local/apache2.4/bin/httpd -k start로 apache 실행
+7-3. make, make install 로 컴파일과 설치 진행
+8. vi /usr/local/apache2.4/conf/httpd.conf 에서 #ServerName www.example.com:80을 ServerName localhost 로 변경 후 저장
+9. sudo /usr/local/apache2.4/bin/httpd -k start 로 apache 실행
 
 *MySQL 설치
 
 - cmake를 통해 설치하기 때문에 가장 먼저 cmake를 다운
-1. /usr/local 경로에서 wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.40.tar.gz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
-2. tar xvfz mysql-8.0.40.tar.gz로 압축 해제
-3. cd mysql-8.0.40로 들어가서 mkdir build 디렉토리를 만들어서 들어감
+1. /usr/local 경로에서 mysql 디렉토리 만들고 wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.40.tar.gz 로 파일 다운로드 (홈페이지에서 최신 버전 확인)
+2. tar xvfz mysql-8.0.40.tar.gz 로 압축 해제
+3. cd mysql-8.0.40 로 들어가서 mkdir build 디렉토리를 만들어서 들어감
 4. cmake \
 .. \
 -DCMAKE_INSTALL_PREFIX=/usr/local/mysql \
@@ -187,28 +187,28 @@ sudo chmod -R 750 /var/lib/mysql로 데이터 디렉토리에 올바른 권한�
 -DWITH_BLACKHOLE_STORAGE_ENGINE=1 \
 -DDOWNLOAD_BOOST=1 \
 -DWITH_BOOST=/usr/local/mysql/boost 설치코드 입력
-5. make, make test, make install로 설치 완료
-6. /usr/local/mysql-8.0.40/build 경로에서 groupadd mysql, useradd -r -g mysql -s /bin/false mysql로 그룹 및 유저를 생성
+5. make, make test, make install 로 설치 완료
+6. /usr/local/mysql-8.0.40/build 경로에서 groupadd mysql, useradd -r -g mysql -s /bin/false mysql 로 그룹 및 유저를 생성
 7. /usr/local/mysql 경로에서 mysql-files 디렉토리 생성
-8. chown -R mysql:mysql /usr/local/mysql, chown mysql:mysql mysql-files, chmod 750 mysql-files로 권한을 부여
+8. chown -R mysql:mysql /usr/local/mysql, chown mysql:mysql mysql-files, chmod 750 mysql-files 로 권한을 부여
 9. bin/mysqld --initialize --user=mysql \
 --basedir=/usr/local/mysql \
 --datadir=/usr/local/mysql/data 로 기본 DB생성 (기본 DB 생성을 완료하면 임시 비밀번호가 생성됨 root@localhost: _________)
 10. bin/mysql_safe --user=mysql &로 MySQL서버를 실행 (ps -ef | grep mysqld 명령어로 MySQL이 실행되고 있는지 확인할 수 있음)
-11. bin/mysql -u root -p로 로그인 (처음 DB생성할 때 임시 비밀번호 받은걸로 로그인)
+11. bin/mysql -u root -p 로 로그인 (처음 DB생성할 때 임시 비밀번호 받은걸로 로그인)
 12. ALTER USER 'root'@'localhost' IDENTIFIED BY '원하는 비밀번호'; 로 비밀번호 변경
-13. bin/mysqladmin -u root -p shutdown후 비밀번호 입력 하면 MySQL 서버 종료
-14. sudo cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysqld로 복사
+13. bin/mysqladmin -u root -p shutdown 후 비밀번호 입력 하면 MySQL 서버 종료
+14. sudo cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysqld 로 복사
 15. vi편집기로 mysqld를 열어 basedir과 datadir 뒤에 경로를 추가 후 저장
 basedir=/usr/local/mysql
 datadir=/usr/local/mysql/data
-16. update-rc.d mysqld defaults로 mysqld 서비스를 등록
+16. update-rc.d mysqld defaults 로 mysqld 서비스를 등록
 
 *PHP 설치
 
-1. wget https://www.php.net/distributions/php-8.4.2.tar.gz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
-2. tar xvfz php-8.4.2.tar.gz로 압축 해제
-3. cd php-8.4.2로 이동
+1. wget https://www.php.net/distributions/php-8.4.2.tar.gz 로 파일 다운로드 (홈페이지에서 최신 버전 확인)
+2. tar xvfz php-8.4.2.tar.gz 로 압축 해제
+3. php-8.4.2 경로에서
 4. ./configure \
 --with-apxs2=/usr/local/apache2.4/bin/apxs \
 --enable-mysqlnd \
@@ -230,8 +230,8 @@ datadir=/usr/local/mysql/data
 <?php
 phpinfo();
 ?> 입력
-11. sudo /usr/local/apache2.4/bin/httpd -k start로 Apache 실행
-12. sudo curl http://127.0.0.1로 실행 확인 (<html><body><h1>It works!</h1></body></html>)
+11. sudo /usr/local/apache2.4/bin/httpd -k start 로 Apache 실행
+12. sudo curl http://127.0.0.1 로 실행 확인 (<html><body><h1>It works!</h1></body></html>)
 
 *PHP 설치코드 입력 후 에러 떴을 때
 
@@ -246,17 +246,17 @@ phpinfo();
 
 *DPDK 설치
 
-1. wget https://fast.dpdk.org/rel/dpdk-24.11.tar.xz로 파일 다운로드 (홈페이지에서 최신 버전 확인)
-2. tar xvf dpdk-24.11.tar.xz로 압축 해제
-3. meson setup -Dexamples=all로 build 디렉토리를 생성하고 Meson 빌드 환경을 초기화
+1. wget https://fast.dpdk.org/rel/dpdk-24.11.tar.xz 로 파일 다운로드 (홈페이지에서 최신 버전 확인)
+2. tar xvf dpdk-24.11.tar.xz 로 압축 해제
+3. meson setup -Dexamples=all 로 build 디렉토리를 생성하고 Meson 빌드 환경을 초기화
 
 *DPDK 바인딩
 
-1. cd dpdk-24.11/usertools경로로 이동해서  sudo ./dpdk-devbind.py --status로 현재 인터페이스가 어디에 연결되어 있는지 확인(처음에는 kernel에 연결되어 있음)
+1. cd dpdk-24.11/usertools 경로로 이동해서  ./dpdk-devbind.py -s 로 현재 인터페이스가 어디에 연결되어 있는지 확인(처음에는 kernel에 연결되어 있음)
 2. 인터페이스 앞에 있는 숫자(ex - 0000:05:00.0)를 기억
 3. 현재 사용하고있는 인터페이스를 제외하고 다른 인터페이스에 Active가 표시 된다면 sudo ip link set 인터페이스이름 down으로 비활성화
 4. sudo ./dpdk-devbind.py --bind=uio_pci_generic 0000:05:00.0로 바인딩 (2개 해줘야 함)
-5. ./dpdk-devbind.py -s로 dpdk에 바인딩이 되었는지 확인
+5. ./dpdk-devbind.py -s 로 dpdk에 바인딩이 되었는지 확인
 
 *DPDK 예제(L2 Forwarding with Crypto Sample Application)
 
@@ -278,3 +278,7 @@ CPU의 첫 두 코어를 사용하여, 메모리 채널을 1개로 설정하고,
 - -p 0x1 : 포트 마스크를 지정
 		   0x1은 바이너리로 0001이므로, 포트 0만 활성화 하겠다는 뜻
 		   0x3은 바이너리로 0011이므로, 포트 0, 1 활성화 하겠다는 뜻
+
+*igb_uio
+
+- CentOS Stream에서는 igb_uio를 지원 안 하는 것 같음 https://lists.fd.io/g/vpp-dev/topic/how_do_i_create_a_igb_uio/10641557
