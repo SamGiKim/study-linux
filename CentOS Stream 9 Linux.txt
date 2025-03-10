@@ -69,9 +69,9 @@ gateway: 192.168.100.1
 5. ssh root@ip주소
 6. 비밀번호 치고 확인
 
-*yum 관련
+*yum 에러
 
-- 현재 /etc/yum.repos.d/에 있는 centos-addons.repo, centos.repo파일에 metalink가 vault.centos.org로 되어있는데 지금은 운영하지 않음
+- 현재 /etc/yum.repos.d/에 있는 centos-addons.repo, centos.repo파일에 metalink가 vault.centos.org로 되어있는데 링크 연결이 안 되는 경우가 있음
 - 그래서 metalink를 바꿔주어야 함
 - CentOS Stream에서는 metalink보다 baseburl이 더 안정적이고 직관적이라고 함
 - 그래서 metalink를 #으로 주석처리 한 후 밑에 baseurl을 추가해줌 
@@ -248,7 +248,14 @@ phpinfo();
 
 1. wget https://fast.dpdk.org/rel/dpdk-24.11.tar.xz 로 파일 다운로드 (홈페이지에서 최신 버전 확인)
 2. tar xvf dpdk-24.11.tar.xz 로 압축 해제
-3. meson setup -Dexamples=all 로 build 디렉토리를 생성하고 Meson 빌드 환경을 초기화
+3. meson setup build -Dexamples=all 로 build 디렉토리를 생성하고 Meson 빌드 환경을 초기화
+4. build 경로로 가서 ninja 
+
+
+*빌드 에러
+- meson setup build -Dexamples=all에서 에러가 떴다면 sudo dnf install numactl-devel 로 libnuma 라이브러리를 설치 후 다시 해보기
+- ninja 실행 중에 에러가 실패가 떴다면 sudo pip3 install pyelftools 로 pyelftools을 설치 후 다시 실행
+
 
 *DPDK 바인딩
 
@@ -257,6 +264,25 @@ phpinfo();
 3. 현재 사용하고있는 인터페이스를 제외하고 다른 인터페이스에 Active가 표시 된다면 sudo ip link set 인터페이스이름 down으로 비활성화
 4. sudo ./dpdk-devbind.py --bind=uio_pci_generic 0000:05:00.0로 바인딩 (2개 해줘야 함)
 5. ./dpdk-devbind.py -s 로 dpdk에 바인딩이 되었는지 확인
+- modprobe vfio-pci 로 vfio드라이버 로드
+- No such device가 나온 경우에는 
+modprobe vfio-pci
+echo 1 > /sys/module/vfio/parameters/enable_unsafe_noiommu_mode
+./dpdk-devbind.py --bind=vfio-pci --noiommu-mode 0000:01:00.0 0000:01:00.1 로 강제 바인딩 가능
+
+
+*ninja 관련
+- dnf config-manager --enable crb, dnf repolist 로 리스트에 crb있는지 확인
+- dnf update 로 목록에 CRB가 나오는 지 확인
+- CRB확인이 됐으면 dnf install ninja-build 로 ninja 설치 후 ninja --version 로 버전 확인
+
+
+*Hugepage 할당
+- cat /proc/meminfo | grep HugePages 로 할당상태 확인 total, free가 0이면 할당 해줘야 함
+- echo 2048 > /proc/sys/vm/nr_hugepages 로 시스템에 할당
+- 다시 cat /proc/meminfo | grep HugePages 로 할당 상태 확인 
+- 확인 후 mount -t hugetlbfs hugetlbfs /dev/hugepages 로 마운트
+
 
 *DPDK 예제(L2 Forwarding with Crypto Sample Application)
 
@@ -265,20 +291,8 @@ phpinfo();
                                [-q NQ]
                                --[no-]mac-updating
                                [--portmap="(port, port)[,(port, port)]"] 로 실행
-ex - ./build/examples/dpdk-l2fwd -c 0x3 -n 1 --vdev 'net_enetfec' -- -p 0x1
-CPU의 첫 두 코어를 사용하여, 메모리 채널을 1개로 설정하고, net_enetfec 가상 장치를 추가로 사용하며, L2 forwarding 동작을 수행하는데, 포트 0에서만 패킷을 처리하도록 설정
-
-- -c 0x3 : 코어 마스크를 지정
-		   0x3은 바이너리로 11로, CPU의 첫 두 코어 (코어 0, 1)를 사용한다는 뜻
-- -n 1 : 메모리 채널 수를 지정
-		 일반적으로 사용 가능한 메모리 채널이 적을 때는 1을 지정
-- --vdev 'net_enetfec' : 가상 NIC 장치(vdev)를 등록
-						 실제 NIC이 아닌 소프트웨어 시뮬레이션된 NIC을 사용할 때 필요
-- -- : 애플리케이션 전용 옵션의 시작
-- -p 0x1 : 포트 마스크를 지정
-		   0x1은 바이너리로 0001이므로, 포트 0만 활성화 하겠다는 뜻
-		   0x3은 바이너리로 0011이므로, 포트 0, 1 활성화 하겠다는 뜻
-
-*igb_uio
-
-- CentOS Stream에서는 igb_uio를 지원 안 하는 것 같음 https://lists.fd.io/g/vpp-dev/topic/how_do_i_create_a_igb_uio/10641557
+ex - ./build/examples/dpdk-l2fwd -l 0-1 -n 4 -- -p 0x3 -P
+- -l 0-1 : CPU 코어 0과 1을 사용
+- -n 4 : 메모리 채널 수를 4개로 설정
+- -p 0x3 : 포트 마스크 설정 0x3는 이진수 0011을 의미, 포트 0과 1 활성화 0xF (이진수 1111)을 사용하면 포트 0, 1, 2, 3이 활성화
+- -P : Promiscuous Mode 활성화, 인터페이스가 모든 패킷을 수신하도록 설정
